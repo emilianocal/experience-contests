@@ -325,25 +325,30 @@ hr_mortality_dist_h1_exp <- round(rexp(40, rate = 0.46))
 ## --> EXCEPT where I added something
   make_rows_h1 <- function(contest_id, colony_id, experience) {
     n_rows <- length(colony_id)
-# Determine which colonies are experienced (experience != "0")
+# is_exp is a group where experience doesn't equal 0, it's either 1 or 2
     is_exp <- experience != "0"
-# Draw contest and HR mortality per colony based on their experience level
-    contest_mort <- ifelse(
+# Using ifelse() and based on experience, we're gonna have r pick from the mortality
+# -> distributions we just outlined above. If the colony is experienced (is_exp),
+# -> then the rows funciton will pick from the first mortality distribution sample 
+# -> Otherwise, it'll pick from the second mortality distribution sample
+      contest_mort <- ifelse(
       is_exp,
       sample(contest_mortality_dist_h1_exp,  n_rows, replace = TRUE),
       sample(contest_mortality_dist_h1_naive, n_rows, replace = TRUE)
     )
-    
+# Here, we're doing the exact same thing as above, but with the mortality after
+# -> 24 hours (which is what "hr_mort" stands for)
     hr_mort <- ifelse(
       is_exp,
       sample(hr_mortality_dist_h1_exp,  n_rows, replace = TRUE),
       sample(hr_mortality_dist_h1_naive, n_rows, replace = TRUE)
     )
     
-    # Brood loss: experienced colonies have a higher rate (more concentrated near 0)
+# Brood loss: experienced colonies have a higher rate (more concentrated near 0)
     brood_rate <- ifelse(is_exp, 1.4, 0.7)
     brood_loss <- round(rexp(n_rows, rate = brood_rate) * rexp(n_rows, rate = brood_rate))
-    
+
+# Here's what's going in each line of the data frame that I made before
     data.frame(
       contest_id          = rep(contest_id, n_rows),
       colony_id           = colony_id,
@@ -415,7 +420,6 @@ sim_images_h2_df <- data.frame(
 )
 
 ### MORTALITY CALCULATIONS FOR H2
-# Separated into naive and experienced categories
 # Naive has LESS of a rightward skew
 contest_mortality_dist_h2_naive <- round(rexp(40, rate = 0.96))
 hr_mortality_dist_h2_naive <- round(rexp(40, rate = 0.95))
@@ -427,12 +431,11 @@ hr_mortality_dist_h2_exp <- round(rexp(40, rate = 0.33))
 
 ### NOW WE ADD THE ROWS TO THE DATA FRAME WE MADE
 ## Since this is the same as before, it won't have detailed comments
-## --> EXCEPT where I added something
+## --> The only real change here is that I'm using my "h2" distributions that
+## --> we just made above
 make_rows_h2 <- function(contest_id, colony_id, experience) {
   n_rows <- length(colony_id)
-  # Determine which colonies are experienced (experience != "0")
   is_exp <- experience != "0"
-  # Draw contest and HR mortality per colony based on their experience level
   contest_mort <- ifelse(
     is_exp,
     sample(contest_mortality_dist_h2_exp,  n_rows, replace = TRUE),
