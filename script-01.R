@@ -1,5 +1,5 @@
 ###
-#    Emiliano Calvo Alcaniz
+###  Emiliano Calvo Alcaniz
 #######################################################
 #                  Ch 2 
 ##     What is the role of experience                ##
@@ -23,6 +23,7 @@
 
 # install.packages('dplyr')
 library("dplyr")
+library("tidyr")
 
 ### SEED, FUNCTIONS, & PARAMETERS FOR SIMULATING COLONY IMAGES ------------
 # set the seed for consistency
@@ -37,7 +38,7 @@ locations <- c("WC", "ML", "MC", "JM")
 #   Collection date (YYMMDD) Location _ Order, ex: 260221JM_A
 make_colony_id <- function(date_str, location, order_letter) {
   # paste0() is a special function that links vectors and converts them into characters
-  paste0(date_str, location, "_", order_letter)
+  paste0(date_str, location, order_letter)
 }
 
 ### HELPER FUNCTION #2
@@ -556,16 +557,38 @@ simulated_notes_data_df <- data.frame(
 
 
 ### DATA WRANGLING  -----------------------------------
+## Take 1, but it breaks once I actually try to run the test
+dfh0 <- sim_images_h0_df[41:80,]
+dfh0$relative_colony_code <- c("colony_1", "colony_2")
+
+df_mortality_h0 <- pivot_wider(dfh0
+                       , names_from = relative_colony_code,
+                       , values_from = total_mortality
+                       , id_cols = contest_id)
+
+wilcox.test(df_mortality_h0$colony_1, df_mortality_h0$colony_2, paired = TRUE)
 
 
+dfh1 <- sim_images_h1_df[41:80,]
+dfh1$relative_colony_code <- c("colony_1", "colony_2")
+
+df_mortality_h1 <- pivot_wider(dfh1
+                            , names_from = relative_colony_code,
+                            , values_from = total_mortality
+                            , id_cols = contest_id)
+
+wilcox.test(df_mortality_h1$colony_1, df_mortality_h1$colony_2, paired = TRUE)
 
 
+dfh2 <- sim_images_h2_df[41:80,]
+dfh2$relative_colony_code <- c("colony_1", "colony_2")
 
+df_mortality_h2 <- pivot_wider(dfh2
+                               , names_from = relative_colony_code,
+                               , values_from = total_mortality
+                               , id_cols = contest_id)
 
-
-
-
-
+wilcox.test(df_mortality_h2$colony_1, df_mortality_h1$colony_2, paired = TRUE)
 
 
 
@@ -631,7 +654,6 @@ stripchart(mortalityh0 ~ previous_experience,
 # Non-parametric test, seeing if the two groups have a 
 # -> statistically significant difference
 wilcox.test(mortalityh0 ~ exph0, data = sim_images_h0_df)
-
 
 
 ### BOX PLOTS OF BROOD LOSS GROUPED BY EXPERIENCE
@@ -795,6 +817,7 @@ wilcox.test(broodlossh2 ~ exph2, data = sim_images_h2_df)
 
 
 ### END :) -------------------------------------------------------------
+
 
 
 
